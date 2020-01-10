@@ -1,5 +1,6 @@
 # What is this?
 This is a "Southern Exclamation" expression generator for Slack, which is meant to be served through Firebase as a Function.
+<img src="example1.png">
 
 ## Okay, but... why?
 You need to find your motivation somewhere, and I get motivation from making my friends laugh... or at least fake laugh out of politeness, bless their hearts.
@@ -80,6 +81,7 @@ Finally, choose "Install your app to your workspace"
 # Usage
 From Slack, type the command you chose (e.g. `/exclaim`) into the chat window of your choice. Your app will hit the Firebase Function and add the message to the chat.
 
+<img src="example2.png">
 
 # Customizing output
 
