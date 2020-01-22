@@ -40,9 +40,11 @@ I don't remember so many steps. Oh jeez, it also prompts you to install dependen
 
 `firebase emulators:start`
 
-(optional) Send a POST request to the emulator (GET also works for simple testing purposes, but Slack uses POST):
+(optional) Send a POST request to the emulator with or without Slack's 'text' payload (GET also works for simple testing purposes, but Slack uses POST):
 
 `curl -d '' -X POST http://localhost:5001/<YOUR PATH>`
+
+`curl -d 'text=adult' -X POST http://localhost:5001/<YOUR PATH>`
 
 Deploy to Firebase:
 
@@ -63,9 +65,15 @@ Slash Commands => Create new Command
 
 Fill out the form as you wish. For reference, the values I used were:
 - **Command:** /exclaim
-- **Request URL:** https://us-central1-southernshock-&lt;SECRET&gt;.cloudfunctions.net/&lt;SECRET&gt;`
+- **Request URL:** https://us-central1-southernshock-<SECRET>.cloudfunctions.net/<SECRET>`
 - **Short Description:** Southern Exclamation
 - **Usage Hint:** &lt;NONE&gt;
+
+Please note that there are different "ratings" available. You can set the request URL to be a rating of your choice as the default. Any additional text passed in with the Slack command will override this rating.
+(e.g. If the request URL is https://us-central1-southernshock-<SECRET>.cloudfunctions.net/<SECRET>/all` for all results, you can pass `/exclaim adult` to return only adult results or `/exclaim general` to return only general(clean) results)
+If you wish to disable this functionality, set the `ALLOW_RATING_OVERRIDE` constant to false.
+
+Another setup possibility is to give each endpoint its own command. (e.g. `/exclaim` is mapped to the general endpoint `/`, `/exclaim!` is mapped to `/all`, and `/ohmercy` is mapped to `/adult`)
 
 From the App page, scroll down to Display Information where you can set:
 - App name
@@ -131,7 +139,7 @@ const buildFromFood = () => {
 
 # Misc
 
-## Do Southern people talk like this?
+## Do Southern people actually talk like this?
 Each and every one of them with absolutely zero exceptions.
 
 ## Could I change this to be less Southern-centric?
