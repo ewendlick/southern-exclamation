@@ -1,21 +1,26 @@
 const functions = require('firebase-functions')
 const express = require('express')
 const cors = require('cors')
+const bodyParser = require('body-parser')
 
 const app = express()
+// Support URL-encoded bodies such as those in Slack
+app.use(bodyParser.urlencoded({
+  extended: true
+}))
+// Automatically allow cross-origin requests
+app.use(cors({ origin: true }))
 
-const rating = {
+const ALLOW_RATING_OVERRIDE = true // Allows users to override ratings
+const ALLOW_FALLBACKS = true // Uses 'general' as a fallback when 'adult' content is empty (prevents errors)
+
+const RATINGS = {
   all: ['general', 'adult'],
-  G: ['general'], // Rated G for General Audiences
-  R: ['adult'] // Rated R for Restricted aka adult
+  general: ['general'],
+  adult: ['adult']
 }
 
-const ratingOrder = [
-  'general',
-  'adult',
-]
-
-const verbs = {
+const VERBS = {
   general: [
     'slap',
     'pinch',
@@ -31,13 +36,11 @@ const verbs = {
     'caress'
   ],
   adult: [
-    'tongue-punch',
-    'donkey-punch',
-    'fuck'
+    'tongue-punch'
   ]
 }
 
-const objects = {
+const OBJECTS = {
   general: [
     'my biscuit',
     'my biscuits',
@@ -50,13 +53,11 @@ const objects = {
   adult: [
     'my ass',
     'my lips',
-    'my keyhole',
-    'my butthole',
-    'my snatch'
+    'my keyhole'
   ]
 }
 
-const verbObjectCombos = {
+const VERB_OBJECT_COMBOS = {
   general: [
     'shiver me timbers',
     'lather me head to toe in honey',
@@ -66,7 +67,7 @@ const verbObjectCombos = {
   ]
 }
 
-const names = {
+const NAMES = {
   general: [
     'Sally',
     'Delilah',
@@ -86,7 +87,7 @@ const names = {
   ]
 }
 
-const sentences = {
+const SENTENCES = {
   general: [
     'Well, smack my ass and call me a newborn.',
     'Well, paint me green and call me a cucumber.',
@@ -105,36 +106,42 @@ const sentences = {
   ]
 }
 
-const getRatingGroups = (target, rating) => {
+const getPossibleTargets = (target, targetRating) => {
+  if (!RATINGS[targetRating]) throw new Error(`Invalid targetRating ${targetRating}!`)
 
+  let possibleTargets = []
+  for (let [key, value] of Object.entries(target)) {
+    if (RATINGS[targetRating].includes(key)) {
+      possibleTargets = possibleTargets.concat(target[key])
+    }
+  }
 
-// TODO: in here
+  if (possibleTargets.length === 0) {
+    if (ALLOW_FALLBACKS) {
+      possibleTargets = target.general
+    } else {
+      throw new Error(`No values found for ${target}!`)
+    }
+  }
 
-
-
-  target = target.reduce(t => {
-    // if the key is in
-    // TODO: all 
-  })
-  // Are target rating results empty? Use the fallback to get more results
-
-
+  return possibleTargets
 }
 
-const getRandomFrom = (target) => {
-  return target[Math.floor(Math.random() * target.length)]
+const getRandomFrom = (target, rating) => {
+  const possibleTargets = getPossibleTargets(target, rating)
+  return possibleTargets[Math.floor(Math.random() * possibleTargets.length)]
 }
 
-const getSentence = () => {
-  return getRandomFrom(sentences)
+const getSentence = (rating) => {
+  return getRandomFrom(SENTENCES, rating)
 }
 
-const buildFromVerbObjectCombo = () => {
-  return `Well, ${getRandomFrom(verbObjectCombos)} and call me ${getRandomFrom(names)}`
+const buildFromVerbObjectCombo = (rating) => {
+  return `Well, ${getRandomFrom(VERB_OBJECT_COMBOS, rating)} and call me ${getRandomFrom(NAMES, rating)}`
 }
 
-const buildFromVerbAndObject = () => {
-  return `Well, ${getRandomFrom(verbs)} ${getRandomFrom(objects)} and call me ${getRandomFrom(names)}`
+const buildFromVerbAndObject = (rating) => {
+  return `Well, ${getRandomFrom(VERBS, rating)} ${getRandomFrom(OBJECTS, rating)} and call me ${getRandomFrom(NAMES, rating)}`
 }
 
 const probabilities = [
@@ -152,7 +159,16 @@ const probabilities = [
   }
 ]
 
-const run = (rating = 'G') => {
+const run = (req, rating = 'general') => {
+  // If "text" parameter exists and is valid, override rating
+  if (ALLOW_RATING_OVERRIDE && req.route.methods.post && req.body.text) {
+    const passedText = req.body.text.toLowerCase()
+
+    if (RATINGS[passedText]) {
+      rating = passedText
+    }
+  }
+
   if (probabilities === undefined || probabilities[0] === undefined) {
     throw new Error('Could not find probabilities!')
   }
@@ -164,7 +180,7 @@ const run = (rating = 'G') => {
     if (probabilities[i + 1] === undefined || targetWeight < probabilities[i].weight) {
       return {
         'response_type': 'in_channel',
-        'text': probabilities[i].action()
+        'text': probabilities[i].action(rating)
       }
     }
   }
@@ -173,18 +189,15 @@ const run = (rating = 'G') => {
 }
 
 
-// Automatically allow cross-origin requests
-app.use(cors({ origin: true }))
-
 // NOTE: Slack only uses POST. GET is for testing functionality more easily in the browser
-app.get('/', (req, res) => res.send(run('G')))
-app.post('/', (req, res) => res.send(run('G')))
+app.get('/', (req, res) => res.send(run(req, 'general')))
+app.post('/', (req, res) => res.send(run(req, 'general')))
 
-app.get('/all', (req, res) => res.send(run('all')))
-app.post('/all', (req, res) => res.send(run('all')))
+app.get('/all', (req, res) => res.send(run(req, 'all')))
+app.post('/all', (req, res) => res.send(run(req, 'all')))
 
-app.get('/adult', (req, res) => res.send(run('R')))
-app.post('/adult', (req, res) => res.send(run('R')))
+app.get('/adult', (req, res) => res.send(run(req, 'adult')))
+app.post('/adult', (req, res) => res.send(run(req, 'adult')))
 
 // Expose Express API as a single Cloud Function
 exports.southernShockApi = functions.https.onRequest(app)
