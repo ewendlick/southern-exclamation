@@ -2,6 +2,7 @@ const functions = require('firebase-functions')
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const {ALLOW_FALLBACKS, ALLOW_RATING_OVERRIDE, RATINGS, VERB_OBJECT_COMBOS, NAMES} = require('./constants')
 
 const app = express()
 // Support URL-encoded bodies such as those in Slack
@@ -10,101 +11,6 @@ app.use(bodyParser.urlencoded({
 }))
 // Automatically allow cross-origin requests
 app.use(cors({ origin: true }))
-
-const ALLOW_RATING_OVERRIDE = true // Allows users to override ratings
-const ALLOW_FALLBACKS = true // Uses 'general' as a fallback when 'adult' content is empty (prevents errors)
-
-const RATINGS = {
-  all: ['general', 'adult'],
-  general: ['general'],
-  adult: ['adult']
-}
-
-const VERBS = {
-  general: [
-    'slap',
-    'pinch',
-    'butter',
-    'smack',
-    'paint',
-    'paint',
-    'shave',
-    'wet',
-    'kick',
-    'kiss',
-    'steal',
-    'caress'
-  ],
-  adult: [
-    'tongue-punch'
-  ]
-}
-
-const OBJECTS = {
-  general: [
-    'my biscuit',
-    'my biscuits',
-    'my tacklebox',
-    'my toolshed',
-    'me silly',
-    'my nipples',
-    'my legs'
-  ],
-  adult: [
-    'my ass',
-    'my lips',
-    'my keyhole'
-  ]
-}
-
-const VERB_OBJECT_COMBOS = {
-  general: [
-    'shiver me timbers',
-    'lather me head to toe in honey',
-    'spin me around in a centrifuge'
-  ],
-  adult: [
-  ]
-}
-
-const NAMES = {
-  general: [
-    'Sally',
-    'Delilah',
-    'Phoebe',
-    'Judy',
-    'Susan',
-    'Clementine',
-    'Sandy',
-    'Samantha',
-    'crazy',
-    'saucy',
-    'a hypocrite',
-    'a donkey',
-    'a monkey'
-  ],
-  adult: [
-  ]
-}
-
-const SENTENCES = {
-  general: [
-    'Well, smack my ass and call me a newborn.',
-    'Well, paint me green and call me a cucumber.',
-    'Well, slap me with bread and call me a sandwich.',
-    'Well, pin my tail and call me a donkey.',
-    'Well, fry me in butter and call me a catfish.',
-    'Well, saddle my back and call me a horse.',
-    'Well, knock me down and steal my teeth.',
-    'Well, dip me in mustard and call me a hotdog.',
-    'Well, butter my butt and call me a biscuit,',
-    'Well, slap my salami and call me a commie.',
-    'Well, I just met you, and this is crazy, but here\'s my Number, so call me maybe.'
-  ],
-  adult: [
-    'Well, paint my ass red and call me a baboon.',
-  ]
-}
 
 const getPossibleTargets = (target, targetRating) => {
   if (!RATINGS[targetRating]) throw new Error(`Invalid targetRating ${targetRating}!`)
@@ -120,7 +26,7 @@ const getPossibleTargets = (target, targetRating) => {
     if (ALLOW_FALLBACKS) {
       possibleTargets = target.general
     } else {
-      throw new Error(`No values found for ${target}!`)
+      throw new Error(`No values found!`)
     }
   }
 
@@ -198,6 +104,8 @@ app.post('/all', (req, res) => res.send(run(req, 'all')))
 
 app.get('/adult', (req, res) => res.send(run(req, 'adult')))
 app.post('/adult', (req, res) => res.send(run(req, 'adult')))
+
+exports.getPossibleTargets = getPossibleTargets
 
 // Expose Express API as a single Cloud Function
 exports.southernShockApi = functions.https.onRequest(app)
