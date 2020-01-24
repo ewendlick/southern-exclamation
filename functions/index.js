@@ -199,5 +199,7 @@ app.post('/all', (req, res) => res.send(run(req, 'all')))
 app.get('/adult', (req, res) => res.send(run(req, 'adult')))
 app.post('/adult', (req, res) => res.send(run(req, 'adult')))
 
+exports.getPossibleTargets = getPossibleTargets
+
 // Expose Express API as a single Cloud Function
 exports.southernShockApi = functions.https.onRequest(app)
