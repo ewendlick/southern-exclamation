@@ -10,6 +10,7 @@ const {
   VERBS,
   OBJECTS,
 } = require("./constants")
+const pkg = require("./package.json")
 
 const app = express()
 // Support URL-encoded bodies such as those in Slack
@@ -118,6 +119,9 @@ app.post("/", (req, res) => res.send(run(req, "general")))
 app.post("/all", (req, res) => res.send(run(req, "all")))
 app.post("/adult", (req, res) => res.send(run(req, "adult")))
 
-app.all("*", (res, req) => {})
+// Catch-all
+app.all("*", (req, res) => {
+  res.json({ api: "Southern Exclamation", version: pkg.version })
+})
 
 app.listen(process.env.PORT || 3000, () => console.log("Server is running"))
