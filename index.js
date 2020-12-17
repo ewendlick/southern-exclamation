@@ -121,7 +121,7 @@ app.post("/adult", (req, res) => res.send(run(req, "adult")))
 
 // Catch-all
 app.all("*", (req, res) => {
-  res.json({ api: "Southern Exclamation", version: pkg.version })
+  res.json({ api: pkg.name, version: pkg.version, description: pkg.description })
 })
 
 app.listen(process.env.PORT || 3000, () => console.log("Server is running"))
