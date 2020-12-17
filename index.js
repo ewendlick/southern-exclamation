@@ -118,6 +118,6 @@ app.post("/", (req, res) => res.send(run(req, "general")))
 app.post("/all", (req, res) => res.send(run(req, "all")))
 app.post("/adult", (req, res) => res.send(run(req, "adult")))
 
-app.listen(3000, () => {
-  console.log("Listening on port 3000")
-})
+app.all("*", (res, req) => {})
+
+app.listen(process.env.PORT || 3000, () => console.log("Server is running"))
