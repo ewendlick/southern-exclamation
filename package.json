@@ -1,0 +1,27 @@
+{
+  "name": "southern-exclamation",
+  "version": "0.0.1",
+  "description": "An expression generator for Slack",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ewendlick/southern-exclamation.git"
+  },
+  "author": "Southern Exclamation Cowboys",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ewendlick/southern-exclamation/issues"
+  },
+  "homepage": "https://github.com/ewendlick/southern-exclamation#readme",
+  "devDependencies": {
+    "prettier": "^2.2.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  }
+}
