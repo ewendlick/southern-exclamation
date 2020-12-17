@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/ewendlick/southern-exclamation.git"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "author": "Southern Exclamation Cowboys",
   "license": "ISC",
   "bugs": {
