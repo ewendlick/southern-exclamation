@@ -54,6 +54,8 @@ exports.VERB_OBJECT_COMBOS = {
     'spin me around in a centrifuge'
   ],
   adult: [
+    'clap my cheeks',
+    'spread me open'
   ]
 }
 
@@ -71,7 +73,18 @@ exports.NAMES = {
     'saucy',
     'a hypocrite',
     'a donkey',
-    'a monkey'
+    'a monkey',
+    'Anderson',
+    'Daniel',
+    'David',
+    'Kaz',
+    'Kevin',
+    'Luke',
+    'Mary',
+    'Ruben',
+    'Topher',
+    'Traviss',
+    'Eli'
   ],
   adult: [
   ]

@@ -1,5 +1,5 @@
 # What is this?
-This is a "Southern Exclamation" expression generator for Slack, which is meant to be served through Firebase as a Function.
+This is a "Southern Exclamation" expression generator for Slack, which is meant to be served through Firebase as a Function, or through Heroku because as of August 17th Google wants me to pay actual money to use their service. This repo holds the keys to demonstrating my emotions and I can't even deploy it.
 <img src="example1.png">
 
 ## Okay, but... why?
