@@ -1,6 +1,10 @@
+require("dotenv").config()
+
 const express = require("express")
 const cors = require("cors")
 const bodyParser = require("body-parser")
+const path = require("path")
+const fetch = require("node-fetch")
 const {
   ALLOW_FALLBACKS,
   ALLOW_RATING_OVERRIDE,
@@ -22,6 +26,8 @@ app.use(
 
 // Automatically allow cross-origin requests
 app.use(cors({ origin: true }))
+
+app.use(express.static("static"))
 
 const getPossibleTargets = (target, targetRating) => {
   if (!RATINGS[targetRating]) throw new Error(`Invalid targetRating ${targetRating}!`)
@@ -118,6 +124,30 @@ const run = (req, rating = "general") => {
 app.post("/", (req, res) => res.send(run(req, "general")))
 app.post("/all", (req, res) => res.send(run(req, "all")))
 app.post("/adult", (req, res) => res.send(run(req, "adult")))
+
+const jsonBinUrl = process.env.JSONBIN_ROOT
+const jsonBinId = process.env.JSONBIN_BINID
+const jsonBinApiKey = process.env.JSONBIN_API_KEY
+
+app.get("/settings/read", async (req, res) => {
+  try {
+    const response = await fetch(`${jsonBinUrl}/b/${jsonBinId}/latest`, {
+      headers: {
+        "Content-Type": "application/json",
+        "secret-key": jsonBinApiKey,
+      },
+    })
+    const data = await response.json()
+    res.json(data)
+  } catch (error) {
+    // TODO: fallback on a static version
+    res.json(error)
+  }
+})
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(`${__dirname}/static/index.html`))
+})
 
 // Catch-all
 app.all("*", (req, res) => {
