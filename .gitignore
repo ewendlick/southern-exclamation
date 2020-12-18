@@ -66,3 +66,6 @@ node_modules/
 
 # That Mac folder file thing
 .DS_Store
+
+.cache
+static
